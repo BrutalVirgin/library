@@ -1,6 +1,5 @@
 import {
   Body,
-  Catch,
   Controller,
   Delete,
   HttpException,
@@ -34,7 +33,12 @@ export class UsersController {
 
   @Put('/:id')
   async updateUser(@Param('id') id: string, @Body() body: UpdateUserDto) {
-    const data = { ...body, updatedAt: new Date() };
-    return await this.userService.updateUser(id, data);
+    try {
+      const updatedAt = new Date();
+      return await this.userService.updateUser(id, body, updatedAt);
+    } catch (err) {
+      // throw new HttpException('NotFoundException', HttpStatus.NOT_FOUND);
+      throw err;
+    }
   }
 }

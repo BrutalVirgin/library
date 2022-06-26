@@ -1,5 +1,7 @@
 import {
   ForbiddenException,
+  HttpException,
+  HttpStatus,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -30,15 +32,27 @@ export class UsersService {
     return await this.userModel.findByIdAndDelete(id);
   }
 
-  async updateUser(id: string, body: UpdateUserDto) {
-    try {
-      await this.userModel.findById(id);
-    } catch {
-      throw new NotFoundException('User not found');
+  async updateUser(id: string, body: UpdateUserDto, updatedAt: Date) {
+    if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+      throw new NotFoundException('id is not valid');
     }
 
-    await this.userModel.findByIdAndUpdate(id, body);
+    const user = await this.userModel.findOne({ _id: id });
 
-    return await this.userModel.findById(id);
+    if (!user) {
+      // throw new NotFoundException('User not found');
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+
+    const updateData = {
+      name: body.name ? body.name : user.name,
+      email: body.email ? body.email : user.email,
+      password: body.password ? body.password : user.password,
+      updatedAt: updatedAt,
+    };
+
+    await this.userModel.updateOne({ id }, updateData);
+
+    return await this.userModel.findOne({ id });
   }
 }

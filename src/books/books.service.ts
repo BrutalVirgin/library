@@ -1,0 +1,29 @@
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { Book, BookDocument } from 'src/db/schemas/books.shema';
+import { CreateBookDto } from './dtos/create-book.dto';
+
+@Injectable()
+export class BooksService {
+  constructor(@InjectModel(Book.name) private bookModel: Model<BookDocument>) {}
+
+  async addBook(body: CreateBookDto, date: Date) {
+    const book = await this.bookModel.findOne({ title: body.title });
+
+    if (book)
+      throw new HttpException('Book already exists', HttpStatus.FORBIDDEN);
+
+    const updateData = {
+      title: body.title,
+      author: body.author,
+      createdAt: date,
+    };
+
+    try {
+      return await this.bookModel.create(updateData);
+    } catch {
+      throw new HttpException('Book validation failed', HttpStatus.FORBIDDEN);
+    }
+  }
+}
