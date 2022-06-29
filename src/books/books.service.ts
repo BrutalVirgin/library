@@ -33,10 +33,6 @@ export class BooksService {
   }
 
   async findBookById(bookid: string) {
-    if (!bookid.match(/^[0-9a-fA-F]{24}$/)) {
-      throw new NotFoundException('id is not valid');
-    }
-
     const book = await this.bookModel.findOne({ _id: bookid });
 
     if (!book)
