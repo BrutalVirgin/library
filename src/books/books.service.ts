@@ -1,4 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Book, BookDocument } from 'src/db/schemas/books.shema';
@@ -25,5 +30,21 @@ export class BooksService {
     } catch {
       throw new HttpException('Book validation failed', HttpStatus.FORBIDDEN);
     }
+  }
+
+  async findBookById(bookid: string) {
+    if (!bookid.match(/^[0-9a-fA-F]{24}$/)) {
+      throw new NotFoundException('id is not valid');
+    }
+
+    const book = await this.bookModel.findOne({ _id: bookid });
+
+    if (!book)
+      throw new HttpException(
+        'There is no book with this id',
+        HttpStatus.NOT_FOUND,
+      );
+
+    return book;
   }
 }

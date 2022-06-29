@@ -1,7 +1,6 @@
-import { InjectModel, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import isEmail from 'validator/lib/isEmail';
-import { Document, Model } from 'mongoose';
-import { Book, BookDocument } from './books.shema';
+import { Document } from 'mongoose';
 
 export type UserDocument = User & Document;
 
@@ -17,7 +16,7 @@ export class User {
   password: String;
 
   @Prop({ default: null })
-  books: [BookDocument];
+  books: [String];
 
   @Prop({ default: null })
   createdAt: Date;

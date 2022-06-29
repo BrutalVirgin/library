@@ -1,10 +1,14 @@
 import { Body, Controller, Param, Post } from '@nestjs/common';
+import { UsersService } from 'src/users/users.service';
 import { BooksService } from './books.service';
 import { CreateBookDto } from './dtos/create-book.dto';
 
 @Controller('books')
 export class BooksController {
-  constructor(private bookService: BooksService) {}
+  constructor(
+    private bookService: BooksService,
+    private userService: UsersService,
+  ) {}
 
   @Post()
   async addBook(@Body() body: CreateBookDto) {
@@ -16,9 +20,19 @@ export class BooksController {
     }
   }
 
-  @Post('/:userid/:id')
-  async addBookToUser(
-    @Param('userid') @Param('id') id: string,
-    userid: string,
-  ) {}
+  @Post('/:userid/:bookid')
+  async addBookToUser(@Param() params) {
+    try {
+      const user = await this.userService.findUserById(params.userid);
+      const book = await this.bookService.findBookById(params.bookid);
+
+      if (user && book) {
+        await this.userService.addBookToUser(params.userid, params.bookid);
+      }
+
+      return await this.userService.findUserById(params.userid);
+    } catch (err) {
+      throw err;
+    }
+  }
 }

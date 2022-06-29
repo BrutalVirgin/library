@@ -29,18 +29,14 @@ export class UsersService {
     } catch {
       throw new NotFoundException('User not found');
     }
-    return await this.userModel.findByIdAndDelete(id);
+    await this.userModel.findByIdAndDelete(id);
+    return `user with id: ${id} was deleted`;
   }
 
   async updateUser(id: string, body: UpdateUserDto, updatedAt: Date) {
-    if (!id.match(/^[0-9a-fA-F]{24}$/)) {
-      throw new NotFoundException('id is not valid');
-    }
-
     const user = await this.userModel.findOne({ _id: id });
 
     if (!user) {
-      // throw new NotFoundException('User not found');
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
 
@@ -54,5 +50,29 @@ export class UsersService {
     await this.userModel.updateOne({ id }, updateData);
 
     return await this.userModel.findOne({ id });
+  }
+
+  async findUserById(id: string) {
+    const user = await this.userModel.findOne({ _id: id });
+
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    return user;
+  }
+
+  async addBookToUser(userid: string, bookid: string) {
+    const user = await this.userModel.findOne({ _id: userid });
+
+    if (user.books.includes(bookid, 0)) {
+      throw new HttpException(
+        'User already have this book',
+        HttpStatus.FORBIDDEN,
+      );
+    } else {
+      user.books.push(bookid);
+    }
+
+    await this.userModel.updateOne({ userid }, { books: user.books });
   }
 }
