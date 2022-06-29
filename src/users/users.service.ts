@@ -75,4 +75,10 @@ export class UsersService {
 
     await this.userModel.updateOne({ userid }, { books: user.books });
   }
+
+  async findUserBookList(userid: string) {
+    const user = await this.findUserById(userid);
+
+    return user.books;
+  }
 }

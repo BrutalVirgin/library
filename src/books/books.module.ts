@@ -1,4 +1,9 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  forwardRef,
+} from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Book, bookShema } from 'src/db/schemas/books.shema';
 import { CheckIdMiddleware } from 'src/middlewares/id-validation';
@@ -10,9 +15,11 @@ import { BooksService } from './books.service';
   providers: [BooksService],
   controllers: [BooksController],
   imports: [
-    UsersModule,
+    forwardRef(() => UsersModule),
+    // UsersModule,
     MongooseModule.forFeature([{ name: Book.name, schema: bookShema }]),
   ],
+  exports: [BooksService],
 })
 export class BooksModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

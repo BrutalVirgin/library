@@ -1,9 +1,4 @@
-import {
-  HttpException,
-  HttpStatus,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Book, BookDocument } from 'src/db/schemas/books.shema';
@@ -42,5 +37,20 @@ export class BooksService {
       );
 
     return book;
+  }
+
+  async findListOfBooks(books: [String]) {
+    const booksList = [];
+
+    if (books.length <= 0) {
+      return 'User has no books';
+    }
+
+    for (let book of books) {
+      const el = await this.bookModel.findOne({ _id: book }, 'title author');
+      booksList.push(el);
+    }
+
+    return booksList;
   }
 }
